@@ -15,7 +15,7 @@ The system comes with its own PKI, one for securing the infrastructure ("CA") an
 Curity Identity Server is configured to allow dynamic client registration requests by any client that can provide a valid client certificate issued by the Regulatory CA. Nginx validates the client requests and among others checks that the request contains a valid software statement signed by the Regulatory CA.
 
 ## Example Request
-`curl --cert intermediate/certs/testuser.cert.pem --key intermediate/private/testuser.key.pem --cacert ../ca/intermediate/certs/ca-chain.cert.pem https://localhost/oauth/v2/oauth-dynamic-client-registration -d '{"redirect_uris": ["https://localhost/callback"], "scope":"openid"}' -v`
+`curl --cert regulatory-testclient.cert.pem --key regulatory-testclient.key.pem --cacert webserver-ca-chain.cert.pem https://localhost/oauth/v2/oauth-dynamic-client-registration -d '{"redirect_uris": ["https://localhost/callback"], "scope":"openid"}' -v`
 
 ## More Information
 
