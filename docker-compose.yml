@@ -14,6 +14,8 @@ services:
     ports:
       - 80:80
       - 443:443
+    networks:
+      - curity
     volumes:
       - ./gateway/nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
     profiles:
@@ -29,11 +31,11 @@ services:
     hostname: internal-curity-admin
     ports:
       - 6749:6749
+    networks:
+      - curity
     volumes:
       - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
       - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
-      #- ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
-      #- ./idsvr/curity-config-dcr-no-https.xml:/opt/idsvr/etc/init/config.xml
       - ./idsvr/curity-config-dcr-mtls-detailed-error.xml:/opt/idsvr/etc/init/config.xml
       - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
@@ -48,10 +50,11 @@ services:
   curity_runtime:
     image: curity.azurecr.io/curity/idsvr:6.2.2
     hostname: internal-curity-runtime
+    networks:
+      - curity
     volumes:
       - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
       - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
-      #- ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
       - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
       - SERVICE_ROLE=default
@@ -63,9 +66,16 @@ services:
   data:
     image: postgres:13.2
     hostname: postgres
+    networks:
+      - curity
     volumes:
       - ./idsvr/data-backup.sql:/docker-entrypoint-initdb.d/data-backup.sql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=Password1
       - POSTGRES_DB=idsvr
+
+networks:
+  curity:
+    name: curity-demo-network
+    driver: bridge
