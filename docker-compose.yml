@@ -61,19 +61,6 @@ services:
       - SERVICE_NAME=Runtime
     depends_on:
       - curity_admin
-      - data
-
-  data:
-    image: postgres:13.2
-    hostname: postgres
-    networks:
-      - curity
-    volumes:
-      - ./idsvr/data-backup.sql:/docker-entrypoint-initdb.d/data-backup.sql
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Password1
-      - POSTGRES_DB=idsvr
 
 networks:
   curity:
