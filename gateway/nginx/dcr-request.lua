@@ -6,7 +6,9 @@ local http = require 'resty.http'
 local function validate_client_metadata(json_request_data)
   local jwks = json_request_data.jwks
 
-  assert(not jwks, "jwks must not be included in request.")
+  if jwks then
+    error("jwks must not be included in request.")
+  end
 
   return true
 end
@@ -45,10 +47,15 @@ local function validate_software_statement(software_statement)
   CSDvwmQpykFBa6waR8LzAw8=
   -----END CERTIFICATE-----]]
 
-  assert(software_statement, "software_statement is missing")
+  if not software_statement then
+    error("software_statement is missing.")
+  end
 
-  local jwt_obj = jwt:verify(key, software_statement)
-  --assert(jwt_obj.verified, jwt_obj.reason)
+  -- Use resty.jwt to validate the software statement
+  --local jwt_obj = jwt:verify(key, software_statement)
+  --if not jwt_obj.verified then
+    --error(jwt_obj.reason)
+  --end
 
   local httpc, err = http.new()
 
@@ -76,16 +83,21 @@ local function validate_scopes_for_role()
 end
 
 function _M.validate(request_data)
-
-  assert(request_data, "Empty request received.")
+  if not request_data then
+    error("Empty request received.")
+  end
 
   local json_request_data = cjson.decode(request_data)
-  assert(json_request_data, "Invalid json payload in request found.")
 
+  if not json_request_data then
+    error("Invalid json payload in request found.")
+  end
+
+  -- If any validation fails an error will occur
   validate_client_metadata(json_request_data)
-
   validate_software_statement(json_request_data.software_statement)
 
+  -- Everything went fine
   return true
 end
 
