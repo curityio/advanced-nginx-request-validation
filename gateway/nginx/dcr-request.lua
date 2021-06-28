@@ -5,9 +5,14 @@ local http = require 'resty.http'
 
 local function validate_client_metadata(json_request_data)
   local jwks = json_request_data.jwks
+  local aut_method = json_request_data.token_endpoint_auth_method
 
   if jwks then
-    error("jwks must not be included in request.")
+    error("Request must not include jwks.")
+  end
+
+  if auth_method == "tls_client_auth" and not json_request_data.tls_client_auth_subject_dn then
+    error("Request must contain tls_client_auth_subject_dn when specifying tls_client_auth.")
   end
 
   return true
@@ -48,7 +53,7 @@ local function validate_software_statement(software_statement)
   -----END CERTIFICATE-----]]
 
   if not software_statement then
-    error("software_statement is missing.")
+    error("Request is missing software_statement.")
   end
 
   -- Use resty.jwt to validate the software statement
@@ -74,9 +79,6 @@ local function validate_software_statement(software_statement)
     ngx.log(ngx.ERR, "request failed: " .. res.status)
     error("Bad request.")
   end
-
-  ngx.log(ngx.ERR, "Received status: " .. res.status)
-
 end
 
 local function validate_scopes_for_role()
