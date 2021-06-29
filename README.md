@@ -45,9 +45,13 @@ DCR requests using templatized clients are very convenient but they are not suit
 
 ### Scripting in nginx
 
-The client's request passes the reverse proxy, i.e. nginx which terminates the TLS sessions in order to validate and adapt the request before sending it to the upstream server aka the Curity Identity Server. As a result nginx handles any mutual TLS session and validates the client's certificate. Only if the certificate is valid, nginx will continue with processing of the request content. To avoid unnecessary heavy operations nginx performs some simple validity checks such as checking for missing or prohibited parameters before validating the signature. It will then pass a valid request to the Curity Identity Server.
+The client's request passes the reverse proxy, i.e. nginx which terminates the TLS sessions in order to validate and adapt the request before sending it to the upstream server aka the Curity Identity Server. As a result nginx handles any mutual TLS session and validates the client's certificate. Only if the certificate is valid, nginx will continue with processing of the request content. To validate the `software_statement` in the DCR request an external service is called. This is because of a limitation in the resty.jwt module regarding signature algorithms. After successful validation nginx will add default values before it forwards the request to the Curity Identity Server together with the client certificate in the header `X-Client-SSL-Cert`.
 
 ```
+...
+# Trusted issuers for client certificates
+ssl_client_certificate /tmp/ca-bank-chain.pem;
+
 ...
 access_by_lua_block {
   ...
@@ -55,19 +59,27 @@ access_by_lua_block {
   ngx.req.read_body()
   local http_body_data = ngx.req.get_body_data()
 
-  -- Call module that handles the request validation
-  metadata_valid, err = pcall(dcr_request.validate, http_body_data)
+  -- Call module that handles the request validation and returns updated client metadata
+  metadata_valid, return_value = pcall(dcr_request.validate, http_body_data)
 
-  -- Log error if any
-  if not metadata_valid then
-    ngx.log(ngx.ERR, "Request validation failed: " .. err)
+  ...
+
+  -- Exit access phase
+  if metadata_valid == true then
+    -- Update request body
+    ngx.req.set_body_data(return_value)
+    ngx.log(ngx.DEBUG, "Request Body: " .. return_value)
+    ngx.exit(ngx.OK)
+  else
+    -- Return Error
+    ...
   end
-...
 }
 
 # Forward request
 proxy_set_header Host $host;
 proxy_set_header X-Real-IP $remote_addr;
+# Add client certificate
 proxy_set_header X-Client-SSL-Cert $ssl_client_escaped_cert;
 proxy_pass http://internal-curity-runtime:8443;
 ```
