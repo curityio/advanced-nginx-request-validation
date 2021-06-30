@@ -85,7 +85,10 @@ proxy_pass http://internal-curity-runtime:8443;
 ```
 
 ## More Information
+Please visit [curity.io](https://curity.io/) for more information about the Curity Identity Server.
 
-Please visit [curity.io](https://curity.io/)  for more information about the Curity Identity Server.
+Check out the [Open Banking Brazil Status Update and Short-Term Roadmap](https://curity.io/blog/open-banking-brazil-status-update-and-short-term-roadmap/).
+
+Also have a look at how the [Curity Identity Server supports Open Banking Brazil](https://curity.io/open-banking-brazil/)
 
 Copyright (C) 2021 Curity AB.
