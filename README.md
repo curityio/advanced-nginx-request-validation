@@ -1,6 +1,6 @@
 # Request Validation in Gateway
 
-[![Quality](https://img.shields.io/badge/quality-experiment-red.svg](https://curity.io/resources/code-examples/status/)
+[![Quality](https://img.shields.io/badge/quality-experiment-red.svg)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
 This repository contains the configuration for the Curity Identity Server and nginx to enable Dynamic Client Registration using mTLS. It also shows how to perform a validation of a software statement within nginx. This setup allows to implement compliance with various Open Banking specifications such as the Open Banking Brasil Security Profile.
@@ -8,6 +8,8 @@ This repository contains the configuration for the Curity Identity Server and ng
 For more information on Curity and its capabilities, click [here](https://curity.io).
 
 ## Installation and Setup
+
+Get a license for the Curity Identity Server from the developer portal at https://developer.curity.io. Copy the license file to `idsvr/license.json`.
 
 Run `docker compose up nginx`. It will setup an admin node of the Curity Identity Server and a runtime node that is secured by a reverse proxy, i.e. nginx.
 
