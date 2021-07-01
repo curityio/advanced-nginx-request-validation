@@ -3,7 +3,7 @@
 [![Quality](https://img.shields.io/badge/quality-experiment-red.svg)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-This repository contains the configuration for the Curity Identity Server and nginx to enable Dynamic Client Registration using mTLS. It also shows how to perform a validation of a software statement within nginx. This setup allows to implement compliance with various Open Banking specifications such as the Open Banking Brasil Security Profile.
+This repository contains the configuration for the Curity Identity Server and nginx to enable Dynamic Client Registration using mTLS. It also shows how to perform a validation of a software statement within nginx. This setup allows to implement compliance with various Open Banking specifications such as the Open Banking Brazil Security Profile. Check out the [Open Banking Brazil DCR Request Validation in Nginx](https://curity.io/resources/learn/nginx-obb-dcr-validation/) for a description of the code example.
 
 ## Approach
 
@@ -15,7 +15,7 @@ The following illustration visualizes the approach.
 
 ![Advanced Request Validation with a Gateway](img/obb-dcr-validation.png "Advanced Request Validation with a Gateway")
 
-The gateway receives the DCR request, does some preprocessing and, if successful, calls the DCR Validation Module. The module in turn validates the `software_statement` via an external service and compares the rest of the DCR request with the content in the statement. In case the DCR request contains data that does not match the content in the software statement, it throws an error. If necessary, the gateway updates the DCR request with default values from the software statement before it forwards the request to the Curity Identity Server.
+The gateway receives the DCR request, does some preprocessing and, if successful, calls the DCR Validation Module. The module in turn validates the `software_statement` via an external service and compares the rest of the DCR request with the content in the statement. In case the DCR request contains data that does not match the content in the software statement, it throws an error. If necessary, the gateway updates the DCR request with default values from the software statement before it forwards the request to the Curity Identity Server. Read more in detail about the approach in [Open Banking Brazil DCR Request Validation](https://curity.io/resources/learn/dcr-validation-in-gateway/).
 
 ## Installation and Setup
 
