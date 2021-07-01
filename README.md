@@ -15,9 +15,58 @@ Run `docker compose up nginx`. It will setup an admin node of the Curity Identit
 
 The system comes with its own PKI, one for securing the infrastructure ("CA") and one for authentication ("Regulatory CA"). In a production system you will use one PKI such as Let's Encrypt for the server certificates and another one for client and user authentication. For example, in case of the Open Banking Brasil Security Profile client certificates and software statements must be issued by Brazil ICP.
 
-Curity Identity Server is configured to allow dynamic client registration requests by any client that can provide a valid client certificate issued by the Regulatory CA. Nginx validates the client requests and among others checks that the request contains a valid software statement signed by the Regulatory CA. Nginx does not validate the signature of the software statement itself but forwards the token to an external service for validation. To test and run this example make sure you also run the [JWT validation service example](https://github.com/curityio/java-jwt-validation) or update the nginx config to point to another JWKS URI.
+Curity Identity Server is configured to allow dynamic client registration requests by any client that can provide a valid client certificate issued by the Regulatory CA. Nginx validates the client requests and among others checks that the request contains a valid software statement signed by the Regulatory CA. Nginx does not validate the signature of the software statement itself but forwards the token to an external service for validation. To test and run this example make sure you also run the [JWT validation service example](https://github.com/curityio/java-jwt-validation) or update the `dcr_request.lua` to point to a different service.
 
-## Example Request
+## Testing
+
+### Certificates
+This example includes two certificates: One for the server (nginx) and one that can be used for the client mutual TLS authentication. Like mentioned above they are part of different PKIs. The server certificate is issued by "C=SE, O=Curity AB, OU=Test, CN=Issuing CA" whereas the client certificate for the testclient is issued by "C=BR, O=Open Banking Brasil, OU=Test, CN=Issuing CA". Both CA's are made up.
+
+ |certificate file                                   | PKI            | purpose |
+ |---                                                |---             |---      |
+ | certs/server-cert-chain.pem                       | infrastructure | List of trusted issuers of server certificates; required for sending test requests |
+ | certs/testclient.cert.pem                         | regulatory     | Client certificate of the testclient; required for mTLS authentication when sending test requests |
+ | certs/testclient.key.pem                          | regulatory     | Corresponding private key for the client certificate; required for mTLS to work |
+ | gateway/nginx/ssl/trusted-client-cert-issuers.pem | regulatory     | List of trusted issuers of client certificates; required for enabling mTLS with certificates signed by the regulatory CA |
+ | gateway/nginx/ssl/server.cert.pem                 | infrastructure | Server certificate for nginx; required for securing the endpoint with HTTPS (TLS) |
+ | gateway/nginx/ssl/server.key.pem                  | infrastructure | Corresponding private key for the server certificate; required for HTTPS to work   |
+
+
+The server certificates are loaded in the `nginx.conf`:
+
+ ```yml
+ # SSL settings
+ ssl_certificate      /tmp/server.cert.pem;
+ ssl_certificate_key  /tmp/server.key.pem;
+ ```
+
+ Mutual TLS is enabled by setting the trusted client certificate issuers in `nginx.conf`:
+
+```yml
+ssl_client_certificate /tmp/trusted-client-cert-issuers.pem;
+ssl_verify_client on;
+```
+
+### Updating Certificates
+
+If you want to change the SSL certificates in this example, update the `COPY` directives in `gateway/nginx/Dockerfile`:
+
+```yml
+COPY gateway/nginx/ssl/server.cert.pem /tmp/server.cert.pem
+COPY gateway/nginx/ssl/server.key.pem /tmp/server.key.pem
+```
+
+For different client certificates change the following line in `gateway/ngin/Dockerfile`:
+
+```yml
+COPY gateway/nginx/ssl/trusted-client-cert-issuers.pem /tmp/trusted-client-cert-issuers.pem
+```
+
+Do not forget to update the client trust store at the Curity Identity Server.
+
+How to create a custom CA or server certificates is out of scope of this example. However, if you need more information about how to request a client certificate that complies with Open Banking Brazil, refer to the [Certificate Generation Instructions of the OBB Working Group](https://github.com/OpenBanking-Brasil/specs-seguranca/tree/main/certificate-generation-instructions). Ideally, you will replace `trusted-client-cert-issuers.pem` with the certificate chain of Brazil ICP.
+
+### Sending Requests
 
 A client can only register with a valid software statement. To retrieve a software statement for testing refer to the [JWT validation service example](https://github.com/curityio/java-jwt-validation) that includes a mocked service for generating a software statement that works with this implementation.
 
@@ -43,7 +92,7 @@ curl --cert certs/testclient.cert.pem --key certs/testclient.key.pem --cacert ce
 
 ### Configure DCR with mTLS
 
-DCR requests using templatized clients are very convenient but they are not suitable for this use case because the configuration does only support client secret authentication for newly created clients which does not comply with common Open Banking requirements. Therefore, enable Dynamic Client Registration for non-templatized clients. The client must use a client certificate signed by a regulatory body when sending the DCR request. However, the request will pass a reverse proxy thus the client authentication method set for DCR must be `mutual-tls-by-proxy` with the CA certificate of the regulatory body such as Brazil ICP. The reverse proxy will use the header `X-Client-SSL-Cert` for forwarding the client certificate to the Curity Identity Server.
+DCR requests using templatized clients are very convenient but they are not suitable for this use case because the configuration does only support client secret authentication for newly created clients which does not comply with common Open Banking requirements. Therefore, enable Dynamic Client Registration for non-templatized clients. The client must use a client certificate signed by a regulatory body when sending the DCR request. However, the request will pass a reverse proxy thus the client authentication method set for DCR must be `mutual-tls-by-proxy` with the CA certificate of the regulatory body such as the Brazil ICP. The reverse proxy will use the header `X-Client-SSL-Cert` for forwarding the client certificate to the Curity Identity Server.
 
 ![Non-templatized DCR](img/dcr-config.png "Non-templatized DCR Configuration")
 
