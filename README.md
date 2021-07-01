@@ -74,7 +74,7 @@ COPY gateway/nginx/ssl/trusted-client-cert-issuers.pem /tmp/trusted-client-cert-
 
 Do not forget to update the client trust store at the Curity Identity Server.
 
-How to create a custom CA or server certificates is out of scope of this example. However, if you need more information about how to request a client certificate that complies with Open Banking Brazil, refer to the [Certificate Generation Instructions of the OBB Working Group](https://github.com/OpenBanking-Brasil/specs-seguranca/tree/main/certificate-generation-instructions). Ideally, you will replace `trusted-client-cert-issuers.pem` with the certificate chain of Brazil ICP.
+How to create a custom CA or server certificates is out of scope of this example. However, if you need more information about how to request a client certificate that complies with Open Banking Brazil, refer to the [Certificate Generation Instructions of the OBB Working Group](https://github.com/OpenBanking-Brasil/specs-seguranca/tree/main/certificate-generation-instructions). Ideally, you will replace `trusted-client-cert-issuers.pem` with the certificate chain of Brazil ICP and configure nginx with valid server certificates.
 
 ### Sending Requests
 
