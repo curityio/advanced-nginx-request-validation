@@ -15,6 +15,7 @@ The following illustration visualizes the approach.
 
 ![Advanced Request Validation with a Gateway](img/obb-dcr-validation.png "Advanced Request Validation with a Gateway")
 
+The gateway receives the DCR request, does some preprocessing and, if successful, calls the DCR Validation Module. The module in turn validates the `software_statement` via an external service and compares the rest of the DCR request with the content in the statement. In case the DCR request contains data that does not match the content in the software statement, it throws an error. If necessary, the gateway updates the DCR request with default values from the software statement before it forwards the request to the Curity Identity Server.
 
 ## Installation and Setup
 
