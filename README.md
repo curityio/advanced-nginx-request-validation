@@ -1,11 +1,20 @@
-# Request Validation in Gateway
+# Advanced Request Validation in Gateway
 
 [![Quality](https://img.shields.io/badge/quality-experiment-red.svg)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
 This repository contains the configuration for the Curity Identity Server and nginx to enable Dynamic Client Registration using mTLS. It also shows how to perform a validation of a software statement within nginx. This setup allows to implement compliance with various Open Banking specifications such as the Open Banking Brasil Security Profile.
 
-For more information on Curity and its capabilities, click [here](https://curity.io).
+## Approach
+
+We recommend hosting a reverse proxy in front of the Curity Identity Server, both because it is more secure, and also for extensibility reasons.
+An API gateway or a reverse proxy is not just a simple security product but provides more advanced options that complement the features of the Curity Identity Server.
+For example, scripts and calls to external services can be used to implement advanced request validation within the gateway. This repo provides a real world example of solving a complex problem that is the implementation of the [Open Banking Brazil Dynamic Client Registration Profile](https://github.com/OpenBanking-Brasil/specs-seguranca/blob/main/open-banking-brasil-dynamic-client-registration-1_ID1.md). The challenge is outlined in the blogpost [Open Banking Brazil Status Update and Short-Term Roadmap](https://curity.io/blog/open-banking-brazil-status-update-and-short-term-roadmap/).
+
+The following illustration visualizes the approach.
+
+![Advanced Request Validation with a Gateway](img/obb-dcr-validation.png "Advanced Request Validation with a Gateway")
+
 
 ## Installation and Setup
 
