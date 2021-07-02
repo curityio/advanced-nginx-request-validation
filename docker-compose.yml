@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+
+  #
+  # Deploy this component to run the system using NGINX as the reverse proxy
+  #
+  nginx:
+    build:
+      context: .
+      dockerfile: ./gateway/nginx/Dockerfile
+    image: custom_openresty:1.19.3.1-8-bionic
+    hostname: internal-nginx
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - curity
+    volumes:
+      - ./gateway/nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+    profiles:
+      - nginx
+    depends_on:
+      - curity_runtime
+
+  #
+  # This Curity admin node runs at https://localhost:6749/admin
+  #
+  curity_admin:
+    image: curity.azurecr.io/curity/idsvr:6.2.2
+    hostname: internal-curity-admin
+    ports:
+      - 6749:6749
+    networks:
+      - curity
+    volumes:
+      - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
+      - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
+      - ./idsvr/curity-config-dcr-mtls-detailed-error.xml:/opt/idsvr/etc/init/config.xml
+      - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
+    environment:
+      - PASSWORD=Password1
+      - SERVICE_ROLE=admin
+      - SERVICE_NAME=Admin
+
+  #
+  # This Curity instance receives requests inside the cluster at the following type of URL:
+  # http://internal-curity-eu:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+  #
+  curity_runtime:
+    image: curity.azurecr.io/curity/idsvr:6.2.2
+    hostname: internal-curity-runtime
+    networks:
+      - curity
+    volumes:
+      - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
+      - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
+      - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
+    environment:
+      - SERVICE_ROLE=default
+      - SERVICE_NAME=Runtime
+    depends_on:
+      - curity_admin
+
+networks:
+  curity:
+    name: curity-demo-network
+    driver: bridge
