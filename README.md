@@ -87,14 +87,14 @@ curl http://localhost:8080/softwarestatement
 Copy the token into the DCR request:
 
 ```shell
-curl --cert certs/testclient.cert.pem --key certs/testclient.key.pem --cacert certs/server-cert-issuers.pem https://localhost/oauth/v2/oauth-dynamic-client-registration -d '{  "token_endpoint_auth_method": "tls_client_auth",
+curl --cert certs/testclient.cert.pem --key certs/testclient.key.pem --cacert certs/server-cert-chain.pem https://localhost/oauth/v2/oauth-dynamic-client-registration -d '{  "token_endpoint_auth_method": "tls_client_auth",
   "tls_client_auth_subject_dn": "C=SE, O=Power Bank, OU=Test, CN=testclient", "redirect_uris": ["https://tpp.example.com/"], "scope":"openid", "software_statement":"..."}' -v
 ```
 
 The following command sends an invalid request. The client must not include `jwks` in the request.
 
 ```shell
-curl --cert certs/testclient.cert.pem --key certs/testclient.key.pem --cacert certs/server-cert-issuers.pem https://localhost/oauth/v2/oauth-dynamic-client-registration -d '{"jwks":"my-secret-key-data", "token_endpoint_auth_method": "tls_client_auth",
+curl --cert certs/testclient.cert.pem --key certs/testclient.key.pem --cacert certs/server-cert-chain.pem https://localhost/oauth/v2/oauth-dynamic-client-registration -d '{"jwks":"my-secret-key-data", "token_endpoint_auth_method": "tls_client_auth",
   "tls_client_auth_subject_dn": "C=SE, O=Power Bank, OU=Test, CN=testclient", "redirect_uris": ["https://tpp.example.com/"], "scope":"openid", "software_statement":"..."}' -v
 ```
 
